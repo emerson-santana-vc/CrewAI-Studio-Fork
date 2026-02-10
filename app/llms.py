@@ -50,16 +50,11 @@ def create_gemini_llm(model, temperature):
     if not api_key:
         raise ValueError("GOOGLE_API_KEY or GEMINI_API_KEY must be set")
 
-    switch_environment({
-        "OPENAI_API_KEY": api_key,
-        "OPENAI_API_BASE": "https://generativelanguage.googleapis.com/v1beta/openai/",
-    })
-
-    return LLM(
-        model="gpt-4o-mini",  # 👈 nome neutro (IMPORTANTÍSSIMO)
+    return ChatOpenAI(
+        model="gpt-4o-mini",  # nome neutro
         temperature=temperature,
-        api_key=api_key,
-        base_url="https://generativelanguage.googleapis.com/v1beta/openai/",
+        openai_api_key=api_key,
+        openai_api_base="https://generativelanguage.googleapis.com/v1beta/openai/",
     )
 
 def create_openai_llm(model, temperature):
