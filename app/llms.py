@@ -42,10 +42,13 @@ def safe_pop_env_var(key):
     os.environ.pop(key, None)
 
 def create_gemini_llm(model, temperature):
-    api_key = st.session_state.env_vars.get("GOOGLE_API_KEY") or st.session_state.env_vars.get("GEMINI_API_KEY")
+    api_key = (
+        st.session_state.env_vars.get("GOOGLE_API_KEY")
+        or st.session_state.env_vars.get("GEMINI_API_KEY")
+    )
 
     if not api_key:
-        raise ValueError("GEMINI_API_KEY or GOOGLE_API_KEY must be set")
+        raise ValueError("GOOGLE_API_KEY or GEMINI_API_KEY must be set")
 
     switch_environment({
         "OPENAI_API_KEY": api_key,
@@ -53,7 +56,7 @@ def create_gemini_llm(model, temperature):
     })
 
     return LLM(
-        model=model,
+        model="gpt-4o-mini",  # 👈 nome neutro (IMPORTANTÍSSIMO)
         temperature=temperature,
         api_key=api_key,
         base_url="https://generativelanguage.googleapis.com/v1beta/openai/",
