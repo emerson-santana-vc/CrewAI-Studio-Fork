@@ -8,6 +8,7 @@ from crewai import LLM
 from langchain_openai.chat_models.base import BaseChatOpenAI
 from litellm import completion
 
+
 def load_secrets_fron_env():
     load_dotenv(override=True)
     if "env_vars" not in st.session_state:
