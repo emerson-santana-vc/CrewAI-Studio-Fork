@@ -1,6 +1,7 @@
 import os
 from dotenv import load_dotenv
 import streamlit as st
+from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_openai import ChatOpenAI
 from langchain_groq import ChatGroq
 from langchain_anthropic import ChatAnthropic
@@ -12,6 +13,7 @@ def load_secrets_fron_env():
     load_dotenv(override=True)
     if "env_vars" not in st.session_state:
         st.session_state.env_vars = {
+            "GOOGLE_API_KEY": os.getenv("GOOGLE_API_KEY"),
             "OPENAI_API_KEY": os.getenv("OPENAI_API_KEY"),
             "OPENAI_API_BASE": os.getenv("OPENAI_API_BASE", "https://api.openai.com/v1/"),
             "GROQ_API_KEY": os.getenv("GROQ_API_KEY"),
@@ -38,6 +40,22 @@ def restore_environment():
 
 def safe_pop_env_var(key):
     os.environ.pop(key, None)
+
+def create_gemini_llm(model, temperature):
+    switch_environment({
+        "GOOGLE_API_KEY": st.session_state.env_vars["GOOGLE_API_KEY"],
+    })
+
+    api_key = os.getenv("GOOGLE_API_KEY")
+
+    if not api_key:
+        raise ValueError("GOOGLE_API_KEY not set in .env file")
+
+    return ChatGoogleGenerativeAI(
+        model=model,
+        temperature=temperature,
+        google_api_key=api_key,
+    )
 
 def create_openai_llm(model, temperature):
     switch_environment({
@@ -128,6 +146,13 @@ def create_lmstudio_llm(model, temperature):
         raise ValueError("LM Studio API base not set in .env file")
 
 LLM_CONFIG = {
+    "Gemini": {
+        "models": [
+            "gemini-2.5-pro",
+            "gemini-2.5-flash",
+        ],
+        "create_llm": create_gemini_llm,
+    },
     "OpenAI": {
         "models": os.getenv("OPENAI_PROXY_MODELS", "").split(",") if os.getenv("OPENAI_PROXY_MODELS") else ["gpt-4.1-mini","gpt-4o-mini", "gpt-4o", "gpt-5-mini", "gpt-5-nano"],
         "create_llm": create_openai_llm,
