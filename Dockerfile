@@ -8,7 +8,6 @@ RUN pip install --upgrade pip
 # install git
 RUN apt-get install build-essential -y
 
-
 RUN mkdir /CrewAI-Studio
 
 # Install requirements
