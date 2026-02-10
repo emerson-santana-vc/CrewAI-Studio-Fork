@@ -185,15 +185,16 @@ def llm_providers_and_models():
     return [f"{provider}: {model}" for provider in LLM_CONFIG.keys() for model in LLM_CONFIG[provider]["models"]]
 
 def create_llm(provider_and_model, temperature=0.15):
-    # Rozdělit pouze na první výskyt ': ', aby model mohl obsahovat dvojtečku
     if ": " not in provider_and_model:
-        raise ValueError("Input string must be in format 'Provider: Model'")
-    provider, model = provider_and_model.split(": ", 1)
-    create_llm_func = LLM_CONFIG.get(provider, {}).get("create_llm")
+        raise ValueError(f"Invalid LLM format: {provider_and_model}")
 
-    if create_llm_func:
-        llm = create_llm_func(model, temperature)
-        restore_environment()  # Obnoví původní prostředí po vytvoření LLM
-        return llm
-    else:
-        raise ValueError(f"LLM provider {provider} is not recognized or not supported")
+    provider, model = provider_and_model.split(": ", 1)
+
+    if provider not in LLM_CONFIG:
+        raise ValueError(f"LLM provider '{provider}' is not supported")
+
+    create_llm_func = LLM_CONFIG[provider]["create_llm"]
+    llm = create_llm_func(model, temperature)
+    restore_environment()
+    return llm
+
