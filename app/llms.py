@@ -14,10 +14,10 @@ def load_secrets_fron_env():
     if "env_vars" not in st.session_state:
         st.session_state.env_vars = {
             "GOOGLE_API_KEY": os.getenv("GOOGLE_API_KEY"),
+            "GEMINI_API_KEY": os.getenv("GEMINI_API_KEY"),
             "OPENAI_API_KEY": os.getenv("OPENAI_API_KEY"),
             "OPENAI_API_BASE": os.getenv("OPENAI_API_BASE", "https://api.openai.com/v1/"),
             "GROQ_API_KEY": os.getenv("GROQ_API_KEY"),
-            "LMSTUDIO_API_BASE": os.getenv("LMSTUDIO_API_BASE"),
             "ANTHROPIC_API_KEY": os.getenv("ANTHROPIC_API_KEY"),
             "OLLAMA_HOST": os.getenv("OLLAMA_HOST"),
             "XAI_API_KEY": os.getenv("XAI_API_KEY"),
@@ -130,28 +130,11 @@ def create_xai_llm(model, temperature):
         base_url=host
     )
 
-def create_lmstudio_llm(model, temperature):
-    switch_environment({
-        "OPENAI_API_KEY": "lm-studio",
-        "OPENAI_API_BASE": st.session_state.env_vars["LMSTUDIO_API_BASE"],
-    })
-    api_base = os.getenv("OPENAI_API_BASE")
-
-    if api_base:
-        return ChatOpenAI(
-            openai_api_key="lm-studio",
-            openai_api_base=api_base,
-            temperature=temperature,
-            max_tokens=4095,
-        )
-    else:
-        raise ValueError("LM Studio API base not set in .env file")
-
 LLM_CONFIG = {
     "Gemini": {
         "models": [
-            "gemini-2.5-pro",
-            "gemini-2.5-flash",
+            "gemini-1.5-pro",
+            "gemini-1.5-flash",
         ],
         "create_llm": create_gemini_llm,
     },
@@ -170,10 +153,6 @@ LLM_CONFIG = {
     "Anthropic": {
         "models": ["claude-3-5-sonnet-20240620","claude-3-7-sonnet-20250219"],
         "create_llm": create_anthropic_llm,
-    },
-    "LM Studio": {
-        "models": ["lms-default"],
-        "create_llm": create_lmstudio_llm,
     },
      "Xai": {
         "models": ["xai/grok-2-1212", "xai/grok-beta"],
