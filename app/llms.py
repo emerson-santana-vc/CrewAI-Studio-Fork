@@ -42,6 +42,7 @@ def safe_pop_env_var(key):
     os.environ.pop(key, None)
 
 def create_gemini_llm(model, temperature):
+    # Tenta pegar a chave de qualquer uma das duas variáveis possíveis
     api_key = (
         st.session_state.env_vars.get("GOOGLE_API_KEY")
         or st.session_state.env_vars.get("GEMINI_API_KEY")
@@ -50,11 +51,11 @@ def create_gemini_llm(model, temperature):
     if not api_key:
         raise ValueError("GOOGLE_API_KEY or GEMINI_API_KEY must be set")
 
-    return ChatOpenAI(
-        model="gpt-4o-mini",  # nome neutro
+    # Usamos a classe LLM do CrewAI que gerencia o roteamento via LiteLLM internamente
+    return LLM(
+        model=f"gemini/{model}", # Garante o prefixo gemini/
         temperature=temperature,
-        openai_api_key=api_key,
-        openai_api_base="https://generativelanguage.googleapis.com/v1beta/openai/",
+        api_key=api_key
     )
 
 def create_openai_llm(model, temperature):
